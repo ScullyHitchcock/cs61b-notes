@@ -1,6 +1,6 @@
-public class Filter implements Predicate<Integer>{
+public class Filter<T> implements Predicate<T>{
     @Override
-    public boolean test(Integer x) {
+    public boolean test(T x) {
         return x.equals(1);
     }
 }

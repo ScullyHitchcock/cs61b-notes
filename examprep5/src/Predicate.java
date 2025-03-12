@@ -1,4 +1,3 @@
-package PACKAGE_NAME;
-
-public class Predicate {
+public interface Predicate<T> {
+    boolean test(T x);
 }
