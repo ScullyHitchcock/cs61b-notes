@@ -6,20 +6,27 @@ public class WeightedQuickUnionWithPathCompressionDs extends QuickUnionDS{
         super(N);
     }
 
+    // Iterative way to compress path
+    // public int root(int p) {
+    //     LinkedList<Integer> temp = new LinkedList<>();
+    //     int parent = parents[p];
+    //     while (parent >= 0) {
+    //         temp.addLast(p);
+    //         p = parent;
+    //         parent = parents[parent];
+    //     }
+    //     for (int i: temp) {
+    //         if (i != p) {
+    //             parents[i] = p;
+    //         }
+    //     }
+    //     return p;
+    // }
+
+    // Recursive way to compress path
     public int root(int p) {
-        LinkedList<Integer> temp = new LinkedList<>();
-        int parent = parents[p];
-        while (parent >= 0) {
-            temp.addLast(p);
-            p = parent;
-            parent = parents[parent];
-        }
-        for (int i: temp) {
-            if (i != p) {
-                parents[i] = p;
-            }
-        }
-        return p;
+        if (parent[p] < 0) return p;
+        return parent[p] = root(parent[p]);
     }
 
     @Override
