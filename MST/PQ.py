@@ -14,6 +14,7 @@ class PQ:
         """
         # The heap list starts with a placeholder at index 0.
         self.tree = [None]
+        self.position_map = {}  # vertex -> index in tree
         for key in keys:
             self.add(key)
 
@@ -97,21 +98,27 @@ class PQ:
 
     def swap(self, i, j):
         """
-        Swap the elements at indices i and j.
+        Swap the elements at indices i and j and update position_map accordingly.
 
         :param i: First index.
         :param j: Second index.
         """
+        ele_i = self.tree[i][1]
+        ele_j = self.tree[j][1]
+        self.position_map[ele_i], self.position_map[ele_j] =\
+            self.position_map[ele_j], self.position_map[ele_i]
         self.tree[i], self.tree[j] = self.tree[j], self.tree[i]
 
     def add(self, val):
         """
         Add a new value to the priority queue and restore the heap order by swimming.
 
-        :param val: The value to add.
+        :param val: The value to add (expected to be a tuple (key, vertex)).
         """
         self.tree.append(val)
-        self.swim(len(self))
+        index = len(self)
+        self.position_map[val[1]] = index
+        self.swim(index)
 
     def get_smallest(self):
         """
@@ -126,34 +133,27 @@ class PQ:
         """
         Remove and return the smallest element from the priority queue.
 
-        This method swaps the root with the last element, removes the last element,
-        and then sinks the new root to restore the heap property.
-
         :return: The smallest element, or None if the priority queue is empty.
         """
         if self:
             self.swap(1, -1)
-            res = self.tree.pop()
+            key = self.tree.pop()
+            del self.position_map[key[1]]
             if self:
                 self.sink(1)
-            return res
+            return key
 
-    def change_key(self, i, key):
+    def change_key(self, k1, k2):
         """
-        Change the value (key) at a given index and restore the heap property.
+        Update the key of the element identified by vertex k2 to a new key k1.
 
-        Both upward and downward adjustments are performed.
+        This method uses the position_map to find the current index of the vertex in the heap,
+        updates its associated key, and then restores the heap property.
 
-        :param i: The index at which to change the value.
-        :param key: The new value.
+        :param k1: The new priority value (key).
+        :param k2: The vertex whose key is to be updated.
         """
-        self.tree[i] = key
+        i = self.position_map[k2]
+        self.tree[i] = (k1, k2)
         self.swim(i)
         self.sink(i)
-
-if __name__ == '__main__':
-    pq = PQ(3, 2, 1)
-    print(len(pq))
-    print(pq.get_smallest())
-    print(pq.remove_smallest())
-    pq.add(1)

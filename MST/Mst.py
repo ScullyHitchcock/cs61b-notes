@@ -1,90 +1,61 @@
-# function PrimMST(Graph G):
-#     选择任意起点 s
-#     初始化 distTo[v] = ∞ 对所有顶点 v
-#     distTo[s] = 0
-#
-#     初始化 edgeTo[v] = None 对所有顶点 v
-#
-#     fringe = 优先队列（小根堆），元素为 (distTo[v], v)
-#     将所有顶点加入 fringe（或用支持 decrease-key 的结构）
-#
-#     初始化 visited = 空集（记录已加入 MST 的顶点）
-#
-#     while fringe 不为空:
-#         弹出权重最小的顶点 v
-#         加入 visited
-#
-#         for 每条边 (v → w, weight):
-#             if w not in visited and weight < distTo[w]:
-#                 distTo[w] = weight
-#                 edgeTo[w] = v
-#                 更新 fringe 中 (w, distTo[w])（decrease-key）
-#
-#     返回 edgeTo（构成 MST 的边），distTo（用于计算总权重）
-from Graph import Graph
 from PQ import PQ
 from WeightedGraph import WeightedGraph
 
-
 def eager_prim_mst(graph, start=None):
+    """
+    Implements the eager version of Prim's algorithm to compute the Minimum Spanning Tree (MST)
+    of a given weighted undirected graph.
+
+    :param graph: An instance of WeightedGraph.
+    :param start: The starting vertex for the MST. If None, defaults to vertex 0.
+    :return: A tuple containing:
+             - total_weight: The total weight of the MST.
+             - edge_to: A list where edge_to[v] is the parent of vertex v in the MST.
+    """
+    # dist_to[v] records the minimum known weight to connect vertex v to the growing MST
     dist_to = [float('inf')] * graph.V()
-    if start:
-        dist_to[start] = 0
+    if start is None:
+        start = 0
+    dist_to[start] = 0
+    # edge_to[v] records the parent of vertex v in the MST
     edge_to = [None] * graph.V()
     fringe = PQ()
+    # Initialize the priority queue with all vertices and their initial distances
     for i in range(len(dist_to)):
         fringe.add((dist_to[i], i))
     total_weight = 0
 
+    # Main loop: expand the MST by selecting the closest fringe vertex
     while fringe:
         dist_to_tree, v = fringe.remove_smallest()
-        if dist_to_tree != float('inf'):
-            total_weight += dist_to_tree
+        total_weight += dist_to_tree
         dist_to[v] = 0
+        # Relax edges: if a cheaper connection to w is found, update it
         for w, weight in graph.adj(v):
             if weight < dist_to[w]:
                 dist_to[w] = weight
                 edge_to[w] = v
-                fringe.change_key(w, (weight, w))
+                fringe.change_key(weight, w)
 
     return total_weight, edge_to
 
 if __name__ == '__main__':
-    g = WeightedGraph(3)
-    g.add_edge(0, 1, 5)
-    g.add_edge(0, 2, 3)
-    g.add_edge(1, 2, 1)
-    d, e = eager_prim_mst(g)
-    print(d)
-    print(e)
+    # Test graph from Prim’s Demo image (7 vertices, indexed 0 to 6)
+    # From https://cs61b-2.gitbook.io/cs61b-textbook/25.-minimum-spanning-trees/25.2-prims-algorithm
+    g = WeightedGraph(7)
+    g.add_edge(0, 1, 2)
+    g.add_edge(0, 2, 1)
+    g.add_edge(1, 2, 5)
+    g.add_edge(1, 3, 11)
+    g.add_edge(1, 4, 3)
+    g.add_edge(2, 4, 1)
+    g.add_edge(2, 5, 15)
+    g.add_edge(3, 4, 2)
+    g.add_edge(3, 6, 1)
+    g.add_edge(4, 5, 4)
+    g.add_edge(4, 6, 3)
+    g.add_edge(5, 6, 1)
 
-# function LazyPrimMST(Graph G):
-#     选择任意起点 s
-#     visited = 空集合           // 标记已加入 MST 的顶点
-#     mst_edges = 空集合          // 用于记录 MST 边
-#     total_weight = 0           // MST 总权重
-#
-#     fringe = 最小堆（小根堆）   // 存储跨越 MST 的候选边 (weight, v, w)
-#
-#     function visit(v):
-#         标记 v 为已访问
-#         for 每条边 (v, w, weight):
-#             if w 未被访问:
-#                 将 (weight, v, w) 加入 fringe
-#
-#     visit(s)
-#
-#     while fringe 不为空 且 mst_edges 边数 < V - 1:
-#         弹出 fringe 中最小的边 (weight, v, w)
-#         if v 和 w 都已被访问:
-#             continue  // 忽略这条过时边
-#
-#         将 (v, w) 加入 mst_edges
-#         total_weight += weight
-#
-#         如果 w 未被访问:
-#             visit(w)
-#         否则:
-#             visit(v)
-#
-#     返回 mst_edges, total_weight
+    total_weight, edge_to = eager_prim_mst(g, start=0)
+    print("Total weight of MST:", total_weight)
+    print("Edge to array:", edge_to)
