@@ -29,6 +29,7 @@ def dijkstra(graph: Graph, start):
         if v in visited:
             continue
         visited.add(v)
+        print(v)
 
         for w, weight in graph.neighbors(v):
             # 这里不会对 w 进行 if w in visited 判断
@@ -60,11 +61,20 @@ def reconstruct_path(edge_to, start, end):
 
 if __name__ == '__main__':
     g = Graph()
-    g.add_edge("A", "B", 4)
-    g.add_edge("A", "C", 1)
-    g.add_edge("C", "B", 2)
-    g.add_edge("B", "D", 1)
-    g.add_edge("C", "D", 5)
+    g.add_edge("A", "B", 2)
+    g.add_edge("A", "C", 6)
+    g.add_edge("A", "E", 4)
+    g.add_edge("B", "C", 4)
+    g.add_edge("B", "D", 6)
+    g.add_edge("C", "D", 3)
+    g.add_edge("C", "E", 1)
+    g.add_edge("C", "F", 1)
+    g.add_edge("D", "F", 1)
+    g.add_edge("E", "F", 1)
+    g.add_edge("E", "G", 2)
+    g.add_edge("F", "G", 3)
+
+
 
     dist, edge_to = dijkstra(g, "A")
     print("最短路径距离:", dist)
